@@ -114,6 +114,7 @@ Verified machine learning implementations completed on [TensorTonic](https://www
 | Warmup + Linear Decay LR Schedule | Compute a learning-rate schedule with linear warmup followed by linear decay across training steps. | https://www.tensortonic.com/problems/warmup-decay-lr |
 | Implement z-Score Standardization | Standardize NumPy features to zero mean and unit variance with explicit handling for constant columns. | https://www.tensortonic.com/problems/zscore-standardization |
 | Next Sentence Prediction | Create BERT next-sentence prediction pairs and compute binary classification logits for IsNext and NotNext examples. | https://www.tensortonic.com/research/bert/bert-nsp |
+| BERT Pooler | Implement the BERT pooler by projecting the first token's hidden state through a dense layer and tanh activation. | https://www.tensortonic.com/research/bert/bert-pooler |
 | Segment Embeddings | Build BERT input embeddings by summing learned token, position, and sentence-segment embedding vectors. | https://www.tensortonic.com/research/bert/bert-segment-embedding |
 | WordPiece Tokenization | Implement BERT WordPiece tokenization with greedy longest-match subwords, continuation prefixes, and unknown-token fallback. | https://www.tensortonic.com/research/bert/bert-wordpiece |
 | BatchNorm in ResNet | Implement ResNet batch normalization with channel statistics, learned scale and bias, and training or inference behavior. | https://www.tensortonic.com/research/resnet/resnet-batch-norm |
