@@ -15,9 +15,8 @@ def pca_projection(X: list, k: int) -> list:
     C = (X_c.T @ X_c) / (n - 1)
 
     # Find eigenvalues and eigenvectors
-    eigenvalues, eigenvectors = np.linalg.eigh(C)
-    sorted_idx = np.argsort(eigenvalues)[::-1]
-    eigenvectors = eigenvectors[:, sorted_idx]    
+    eigenvectors = np.linalg.eigh(C)[1]
+    eigenvectors = eigenvectors[:, ::-1] 
     W = eigenvectors[:, :k]
 
     # Project the data
