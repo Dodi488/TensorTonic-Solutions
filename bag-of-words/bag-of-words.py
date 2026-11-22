@@ -4,7 +4,9 @@ def bag_of_words_vector(tokens: list, vocab: list) -> np.ndarray:
     """
     Returns a NumPy array with length len(vocab).
     """
-    # Write code here
-    tokens = np.array(tokens)
-    vocab = np.array(vocab)
-    return (vocab[:, None] == tokens).sum(axis=1)
+    token_index = {token: index for index, token in enumerate(vocab)}
+    counts = np.zeros(len(vocab), dtype=int)
+    for token in tokens:
+        if token in token_index:
+            counts[token_index[token]] += 1
+    return counts
