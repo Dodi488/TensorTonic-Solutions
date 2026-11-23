@@ -4,5 +4,5 @@ def reparameterize(mu: np.ndarray, log_var: np.ndarray, epsilon: np.ndarray) -> 
     """
     Returns the float64 latent sample with the same shape as mu.
     """
-    sigma = np.exp(log_var / 2)
+    sigma = np.exp(log_var * 0.5)
     return mu + sigma * epsilon
