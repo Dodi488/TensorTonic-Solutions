@@ -6,7 +6,4 @@ def detect_mode_collapse(generated_samples: np.ndarray, threshold: float = 0.1) 
     """
     sj = np.std(generated_samples, axis=0)
     s = np.mean(sj, axis=0)
-    if s < threshold:
-        return {"diversity_score":s,"is_collapsed":True}
-    else:
-        return {"diversity_score":s,"is_collapsed":False}
+    return {"diversity_score":s,"is_collapsed":bool(s < threshold)}
