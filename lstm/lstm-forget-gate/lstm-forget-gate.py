@@ -9,4 +9,4 @@ def forget_gate(h_prev: np.ndarray, x_t: np.ndarray,
     Returns the float64 forget-gate values.
     """
     joined = np.concatenate([h_prev, x_t], axis=-1)
-    return sigmoid(joined @ W_f.T + b_f)
+    return sigmoid(joined @ W_f.T + b_f).astype(np.float64)
