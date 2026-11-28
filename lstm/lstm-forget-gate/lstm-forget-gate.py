@@ -1,12 +1,9 @@
-import numpy as np
+import torch
 
-def sigmoid(x: np.ndarray) -> np.ndarray:
-    return 1.0 / (1.0 + np.exp(-np.clip(x, -500, 500)))
-
-def forget_gate(h_prev: np.ndarray, x_t: np.ndarray,
-                W_f: np.ndarray, b_f: np.ndarray) -> np.ndarray:
+def forget_gate(h_prev: torch.Tensor, x_t: torch.Tensor,
+                W_f: torch.Tensor, b_f: torch.Tensor) -> torch.Tensor:
     """
-    Returns the float64 forget-gate values.
+    Returns the forget-gate values with the shape and dtype of h_prev.
     """
-    joined = np.concatenate([h_prev, x_t], axis=-1)
-    return sigmoid(joined @ W_f.T + b_f).astype(np.float64)
+    joined = torch.concatenate([h_prev, x_t], axis=-1)
+    return torch.sigmoid(joined @ W_f.T + b_f)

@@ -6,7 +6,7 @@
 
 ## <span style="font-size: 16px;">What It Is</span>
 
-<span style="font-size: 14px;">The forget gate is a learned, element-wise filter applied to the cell state $c_{t-1}$ before the cell state update at time step $t$. It produces a vector $f_t \in \mathbb{R}^H$ where each element lies in $[0, 1]$. A value of $0$ means "completely forget this dimension of the cell state," while a value of $1$ means "keep this dimension unchanged." Values between $0$ and $1$ represent partial retention.</span>
+<span style="font-size: 14px;">The forget gate is a learned, element-wise filter applied to the cell state $c_{t-1}$ before the cell state update at time step $t$. It produces a vector $f_t \in \mathbb{R}^H$ where each element lies in $(0, 1)$. A value of $0$ means "completely forget this dimension of the cell state," while a value of $1$ means "keep this dimension unchanged." Values between $0$ and $1$ represent partial retention.</span>
 
 <span style="font-size: 14px;">The gate examines two inputs: the previous hidden state $h_{t-1}$ and the current input $x_t$. These are concatenated, multiplied by a learned weight matrix $W_f$, shifted by a bias $b_f$, and passed through sigmoid. The result is a per-dimension retention mask applied to the cell state via element-wise multiplication.</span>
 
@@ -34,7 +34,7 @@ $$
 
 <span style="font-size: 14px;">Here $W_f \in \mathbb{R}^{H \times (H+D)}$ and $b_f \in \mathbb{R}^H$. The matrix-vector product produces $z_f \in \mathbb{R}^H$, a vector of pre-activation logits. Each element $z_f[i]$ is a weighted combination of all elements from $h_{t-1}$ and $x_t$, plus a bias term.</span>
 
-<span style="font-size: 14px;">**Stage 3 -- Sigmoid activation.** The logits are squashed to $[0, 1]$:</span>
+<span style="font-size: 14px;">**Stage 3 -- Sigmoid activation.** The logits are squashed to $(0, 1)$:</span>
 
 $$
 f_t = \sigma(z_f) = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)
@@ -68,7 +68,7 @@ $$
 
 <span style="font-size: 14px;">The choice of sigmoid for the forget gate activation is deliberate and serves multiple purposes.</span>
 
-<span style="font-size: 14px;">**Smooth [0, 1] range.** The sigmoid maps any real-valued input to the open interval $(0, 1)$. This makes it a natural choice for a gate that needs to represent a "fraction to keep." A hard threshold (step function) would produce only binary decisions -- fully keep or fully forget -- with no gradient flowing through in either case. The sigmoid provides a smooth, differentiable transition that allows the network to learn nuanced retention levels through gradient descent.</span>
+<span style="font-size: 14px;">**Smooth (0, 1) range.** The sigmoid maps any real-valued input to the open interval $(0, 1)$. This makes it a natural choice for a gate that needs to represent a "fraction to keep." A hard threshold (step function) would produce only binary decisions -- fully keep or fully forget -- with no gradient flowing through in either case. The sigmoid provides a smooth, differentiable transition that allows the network to learn nuanced retention levels through gradient descent.</span>
 
 <span style="font-size: 14px;">**Per-dimension independence.** The sigmoid is applied element-wise. Each of the $H$ dimensions of the forget gate output is computed independently. Dimension 3 might output $f_t[3] = 0.95$ (keep almost everything) while dimension 7 outputs $f_t[7] = 0.02$ (nearly forget everything), all within the same time step. Different dimensions of the cell state can encode different types of information with different persistence requirements.</span>
 
@@ -86,9 +86,9 @@ $$
 
 <span style="font-size: 14px;">Three years later, Gers, Schmidhuber, and Cummins (2000) published "Learning to Forget: Continual Prediction with LSTM," introducing the forget gate. They demonstrated that on continual prediction tasks -- where the model must track a changing environment -- the forget gate significantly improved performance by enabling the LSTM to reset its internal state when context changed.</span>
 
-<span style="font-size: 14px;">Greff et al. (2017) conducted a large-scale study of LSTM variants ("LSTM: A Search Space Odyssey") and found that the forget gate was the single most important component. Removing the forget gate caused the largest performance degradation across all tasks tested, more than removing any other single gate. This confirmed the practical importance of the ability to selectively erase memory.</span>
+<span style="font-size: 14px;">Greff et al. (2017) conducted a large-scale study of LSTM variants ("LSTM: A Search Space Odyssey") and found that the forget gate and the output activation function were the most critical components. Removing the forget gate significantly hurt performance on every task they tested. This confirmed the practical importance of the ability to selectively erase memory.</span>
 
-<span style="font-size: 14px;">The forget gate also introduced a critical implementation detail: **bias initialization**. Jozefowicz, Zaremba, and Sutskever (2015) showed that initializing the forget gate bias to a large positive value (typically $1.0$ or $2.0$) is essential. This ensures the forget gate starts near $1$ (keep everything), preventing the network from forgetting information before it has learned what is worth remembering. PyTorch follows this practice by default.</span>
+<span style="font-size: 14px;">The forget gate also introduced a critical implementation detail: **bias initialization**. Jozefowicz, Zaremba, and Sutskever (2015) showed that initializing the forget gate bias to a large positive value (typically $1.0$ or $2.0$) is essential. This ensures the forget gate starts near $1$ (keep everything), preventing the network from forgetting information before it has learned what is worth remembering. Keras applies this initialization by default, while PyTorch initializes every LSTM bias from the same small uniform range, so PyTorch users set the forget-gate part of the bias themselves.</span>
 
 ---
 
@@ -160,7 +160,7 @@ $$
 
 * <span style="font-size: 14px;">**Initializing forget gate bias to zero.** With zero bias, the forget gate starts at $\sigma(0) = 0.5$ for all dimensions, meaning the cell immediately forgets half of its state at every time step. Over $T$ steps, information decays as $0.5^T$: after just 10 steps, only $0.1\%$ of the original information remains. Jozefowicz et al. (2015) showed that initializing $b_f = 1.0$ (so the gate starts near $\sigma(1) \approx 0.73$) dramatically improves training. Some frameworks use $b_f = 2.0$ for even stronger initial retention.</span>
 
-* <span style="font-size: 14px;">**Confusing the forget gate with the input gate.** The forget gate controls what to **discard** from the previous cell state; the input gate controls what **new** information to write. In $c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$, swapping $f_t$ and $i_t$ means the gate controlling retention instead controls new writes. The network may still train, but convergence is slower because the roles are semantically inverted.</span>
+* <span style="font-size: 14px;">**Confusing the forget gate with the input gate.** The forget gate controls what to **discard** from the previous cell state; the input gate controls what **new** information to write. In $c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$, swapping $f_t$ and $i_t$ means the gate controlling retention instead controls new writes. With trained weights the swap produces wrong cell states, and with a positive forget-gate bias initialization the large bias ends up on the gate that controls new writes, so the cell starts training by discarding about half of its memory at every step.</span>
 
 * <span style="font-size: 14px;">**Applying forget gate to hidden state instead of cell state.** The forget gate modulates $c_{t-1}$ (the cell state), not $h_{t-1}$ (the hidden state). The hidden state is the input to the gate computation, but the gate's output multiplies the cell state. Writing $f_t \odot h_{t-1}$ instead of $f_t \odot c_{t-1}$ bypasses the cell state entirely, and the cell state accumulates without decay -- reverting to the original 1997 problem that the forget gate was designed to solve.</span>
 
