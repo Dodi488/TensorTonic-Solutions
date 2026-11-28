@@ -5,11 +5,10 @@ def rnn_step_forward(x_t: list, h_prev: list, Wx: list, Wh: list, b: list) -> np
     Returns a NumPy array with shape (H,).
     """
     # Write code here
-    x_t = np.array(x_t)
-    h_prev = np.array(h_prev)
-    Wx = np.array(Wx)
-    Wh = np.array(Wh)
-    b = np.array(b)
+    x_t = np.asarray(x_t, dtype=float)
+    h_prev = np.asarray(h_prev, dtype=float)
+    Wx = np.asarray(Wx, dtype=float)
+    Wh = np.asarray(Wh, dtype=float)
+    b = np.asarray(b, dtype=float)
     
-    a = x_t @ Wx + h_prev @ Wh + b
-    return np.tanh(a)
+    return np.tanh(x_t @ Wx + h_prev @ Wh + b)
